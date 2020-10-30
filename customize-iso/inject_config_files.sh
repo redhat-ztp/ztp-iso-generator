@@ -2,6 +2,8 @@ INITIAL_ISO_PATH=$1
 CONFIG_FOLDER=$2
 FINAL_ISO_PATH=$3
 
+CONFIG_PATH=$(dirname "$0")
+
 if [ -z "$1" ]
   then
     echo "Please provide the initial ISO"
@@ -20,19 +22,44 @@ if [ -z "$3" ]
     exit 1
 fi
 
-# open the iso and mount it
-mkdir /tmp/temporary_iso
-mount -t iso9660 -o loop $INITIAL_ISO_PATH /mnt/
+echo "***** WARNING: this script needs to be executed as root *********"
 
-pushd /mnt
-tar cf - . | (cd /tmp/temporary_iso; tar xfp -)
+# create initial directories
+umount /mnt/custom_live_iso
+rm -rf /mnt/custom_live_iso
+mkdir /mnt/custom_live_iso
+
+rm -rf /tmp/modified_iso
+mkdir /tmp/modified_iso
+chown 777 /tmp/modified_iso
+
+# mount the installer iso
+echo "mount -t iso9660 -o loop $INITIAL_ISO_PATH  /mnt/custom_live_iso"
+mount -t iso9660 -o loop $INITIAL_ISO_PATH  /mnt/custom_live_iso
+
+# copy to a temporary directory
+pushd /mnt/custom_live_iso
+tar cf - . | (cd /tmp/modified_iso && tar xfp -)
 popd
 
-# create new config folder and inject files
-mkdir -p /tmp/temporary_iso/opt/config
-cp -R $2 /tmp/temporary_iso/opt/config/
+# copy the custom isolinux.cfg
+cp ${CONFIG_PATH}/isolinux.cfg /tmp/modified_iso/isolinux/
 
-pushd /tmp/temporary_iso
-mkisofs -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -J -R -V "Installer ISO" .
+# generate extra ramdisk with our config folder
+pushd $CONFIG_FOLDER
+find . | sed 's/^[.]\///' | cpio -o -H newc --no-absolute-filenames > /tmp/modified_iso/isolinux/initramfsExtra
 popd
+
+# rebuild installer image
+pushd /tmp/modified_iso
+
+# remove pxe images
+rm -rf images/pxeboot/*
+mkisofs -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat  -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -V "RHCOS custom installer" .
+popd
+
+# clean
+umount /mnt/custom_live_iso
+rm -rf /mnt/custom_live_iso
+rm -rf /tmp/modified_iso
 
