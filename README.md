@@ -51,3 +51,11 @@ with the following usage:
 This script will simply take the content of the config folder specified, and will copy it inside the Live CD. Once the image is booted,
 all this content can simply be accessed from /run/initramfs/live/config path.
 
+A sample config folder can look like:
+
++-- config_folder
++-- network
++-- +-- ifcfg_file_1
++-- +-- ifcfg_file_2
++-- settings
+
