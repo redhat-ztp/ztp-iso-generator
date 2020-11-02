@@ -40,3 +40,14 @@ And when it finishes we can download the image with:
 
 It will download an ISO that we can use to mount in virtualmedia.
 
+# How to configure the ISO
+
+Once the boot ISO has been generated, it is possible to inject some extra configuration files that can be used by other processes.
+In order to do that, you can use the https://github.com/redhat-ztp/ztp-iso-generator/blob/main/customize-iso/inject_config_files.sh script,
+with the following usage:
+
+./customize-iso/inject_config_files.sh <original_iso> <path_to_config_folder> <final_iso>
+
+This script will simply take the content of the config folder specified, and will copy it inside the Live CD. Once the image is booted,
+all this content can simply be accessed from /run/initramfs/live/config path.
+
