@@ -45,17 +45,15 @@ popd
 # copy the custom isolinux.cfg
 cp ${CONFIG_PATH}/isolinux.cfg /tmp/modified_iso/isolinux/
 
-# generate extra ramdisk with our config folder
-pushd $CONFIG_FOLDER
-find . | sed 's/^[.]\///' | cpio -o -H newc --no-absolute-filenames > /tmp/modified_iso/isolinux/initramfsExtra
-popd
+# generate extra folder with our config
+mkdir /tmp/modified_iso/config
+cp -R $CONFIG_FOLDER/* /tmp/modified_iso/config/
 
-# rebuild installer image
 pushd /tmp/modified_iso
-
-# remove pxe images
 rm -rf images/pxeboot/*
-mkisofs -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat  -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -V "RHCOS custom installer" .
+
+# rebuild ISO
+mkisofs -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat  -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -V "Red-Hat-Enterprise-Linux-8-2-x86" .
 popd
 
 # clean
