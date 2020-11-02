@@ -29,6 +29,11 @@ bootloader --location=none
 
 %post
 
+echo nameserver 8.8.8.8 > /etc/resolv.conf
+
+# dowload coreos image
+#podman pull quay.io/coreos/coreos-installer:latest
+
 # allow sudo without password
 sed --in-place 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+NOPASSWD:\s\+ALL\)/\1/' /etc/sudoers
 
@@ -50,6 +55,7 @@ rm -f /boot/System.map*
 
 # remove some random help txt files
 rm -fv /usr/share/gnupg/help*.txt || true
+rm -rf /usr/share/man/*
 # Pruning random things
 rm /usr/lib/rpm/rpm.daily || true
 rm -rfv /usr/lib64/nss/unsupported-tools/ || true
@@ -60,6 +66,8 @@ rm -fv /usr/bin/pinky || true
 rm -rfv  /usr/share/zoneinfo || true
 # don't need icons
 rm -rfv /usr/share/icons/* || true
+
+dnf autoremove -y
 
 # Remove some dnf info
 rm -rfv /var/lib/dnf || true
@@ -105,12 +113,12 @@ rpm -e --nodeps rhn-client-tools || true
 rpm -e --nodeps rhn-check || true
 rpm -e python3-rhn-check || true
 rpm -e --nodeps dnf-plugin-spacewalk || true
-rpm -e python3-hawkey || true
 rpm -e python3-dnf-plugin-spacewalk || true
 rpm -e yum || true
 rpm -e dnf || true
 rpm -e dnf-plugins-core || true
 rpm -e python3-dnf-plugins-core || true
+rpm -e --nodeps linux-firmware || true
 
 # Ensure we don't have the same random seed on every image, which
 # could be bad for security at a later point...
@@ -180,6 +188,7 @@ rm -rf /var/lib/{yum,rpm}/* || true
 # no more python loading after this step
 echo " * removing python precompiled *.pyc files"
 find /usr/lib64/python*/ /usr/lib/python*/ -name *py[co] -print0 | xargs -0 rm -f || true
+
 %end
 
 # NOTE Do NOT add any other sections after %packages
@@ -187,7 +196,6 @@ find /usr/lib64/python*/ /usr/lib/python*/ -name *py[co] -print0 | xargs -0 rm -
 # Packages requires to support this output format go here
 @core
 kernel
-kernel-modules
 isomd5sum
 dracut-config-generic
 dracut-live
@@ -212,6 +220,10 @@ libss
 -ed
 authconfig
 -wireless-tools
+-alsa-sof-firmware
+-atmel-firmware
+-ipw2100-firwmare
+-ipw2200-firmware
 -iwl7260-firmware
 -iwl3160-firmware
 -iwl6000g2b-firmware
@@ -230,6 +242,9 @@ authconfig
 -iwl3945-firmware
 -liquidio-firmware
 -netronome-firmware
+-libertas-usb8388-firmware
+-linux-firmware-whence
+-zd1211-firmware
 # Remove the kbd bits
 -kbd
 -usermode
@@ -265,4 +280,3 @@ authconfig
 -@base
 
 # NOTE lorax-composer will add the blueprint packages below here, including the final %end%packages
-
