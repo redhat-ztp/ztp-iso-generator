@@ -53,9 +53,9 @@ all this content can simply be accessed from /run/initramfs/live/config path.
 
 A sample config folder can look like:
 
-+-- config_folder
-+-- network
-+-- +-- ifcfg_file_1
-+-- +-- ifcfg_file_2
-+-- settings
-
+```bash
+/tmp/config/
+├── network
+│   └── ifcfg-eno2
+└── settings
+```
