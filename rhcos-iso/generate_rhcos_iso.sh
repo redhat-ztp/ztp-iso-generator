@@ -1,4 +1,7 @@
 # Generates a minimal RHCOS ISO, that will pull rootfs from external source
+rm -rf /tmp/coreos
+rm /tmp/coreos.iso
+
 pushd /tmp
 mkdir -p coreos/{isolinux,syslinux,coreos}
 
@@ -31,10 +34,11 @@ INCLUDE /syslinux/syslinux.cfg
 prompt 0
 default coreos
 
+TIMEOUT 50
 LABEL coreos
 KERNEL /coreos/vmlinuz
-APPEND initrd=/coreos/initramfs.img root=##REPLACE## state=tmpfs:
+APPEND initrd=/coreos/initramfs.img
 EOF
 
 # generate the ISO
-mkisofs -v -l -r -J -o ../coreos.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
+mkisofs -v -l -r -J -o /tmp/coreos.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
