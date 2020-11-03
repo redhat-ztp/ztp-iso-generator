@@ -33,16 +33,6 @@ default coreos
 
 LABEL coreos
 KERNEL /coreos/vmlinuz
-APPEND initrd=/coreos/initramfs.img root=/dev/ram0 state=tmpfs:
-cat: +: No existe el fichero o el directorio
-[yolanda@localhost tmp]$ cat coreos/isolinux.cfg
-INCLUDE /syslinux/syslinux.cfg
-
-prompt 0
-default coreos
-
-LABEL coreos
-KERNEL /coreos/vmlinuz
 APPEND initrd=/coreos/initramfs.img root=##REPLACE## state=tmpfs:
 EOF
 
