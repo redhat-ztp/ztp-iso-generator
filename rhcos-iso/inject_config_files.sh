@@ -1,6 +1,5 @@
 INITIAL_ISO_PATH=$1
-CONFIG_FOLDER=$2
-FINAL_ISO_PATH=$3
+FINAL_ISO_PATH=$2
 
 CONFIG_PATH=$(dirname "$0")
 
@@ -11,12 +10,6 @@ if [ -z "$1" ]
 fi
 
 if [ -z "$2" ]
-  then
-    echo "Please provide the config folder to inject"
-    exit 1
-fi
-
-if [ -z "$3" ]
   then
     echo "Please provide the path for final ISO"
     exit 1
@@ -43,10 +36,10 @@ tar cf - . | (cd /tmp/modified_iso && tar xfp -)
 popd
 
 # generate the extra ramdisk
-bash $CONFIG_PATH/ramdisk_generator.sh $CONFIG_FOLDER /tmp/modified_iso/coreos/ignition_ramdisk
+#bash $CONFIG_PATH/ramdisk_generator.sh $IGNITION_PATH /tmp/modified_iso/coreos/ignition_ramdisk
 
 # append parameter to isolinux.cfg
-sed -i '/^APPEND/s/$/,\/coreos\/ignition_ramdisk ignition.config.url=file:\/\/\/config.ign/' /tmp/modified_iso/syslinux/isolinux.cfg
+sed -i "/^APPEND/s/$/ ignition.firstboot ignition.platform.id=metal ignition.config.url=http:\/\/192.168.111.1:8080\/ignition_url coreos.live.rootfs_url=http:\/\/192.168.111.1:8080\/rootfs\.img/" /tmp/modified_iso/syslinux/isolinux.cfg
 
 # rebuild ISO
 pushd /tmp/modified_iso
