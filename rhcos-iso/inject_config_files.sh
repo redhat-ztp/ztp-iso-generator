@@ -1,6 +1,10 @@
 INITIAL_ISO_PATH=$1
 FINAL_ISO_PATH=$2
 
+IGNITION_PATH=$3
+ROOTFS_PATH=$4
+KERNEL_ARGUMENTS=$5
+
 CONFIG_PATH=$(dirname "$0")
 
 if [ -z "$1" ]
@@ -12,6 +16,24 @@ fi
 if [ -z "$2" ]
   then
     echo "Please provide the path for final ISO"
+    exit 1
+fi
+
+if [ -z "$3" ]
+  then
+    echo "Please provide the url for ignition"
+    exit 1
+fi
+
+if [ -z "$4" ]
+  then
+    echo "Please provide the url for rootfs"
+    exit 1
+fi
+
+if [ -z "$5" ]
+  then
+    echo "Please provide the kernel arguments"
     exit 1
 fi
 
@@ -39,7 +61,7 @@ popd
 #bash $CONFIG_PATH/ramdisk_generator.sh $IGNITION_PATH /tmp/modified_iso/coreos/ignition_ramdisk
 
 # append parameter to isolinux.cfg
-sed -i "/^APPEND/s/$/ ignition.firstboot ignition.platform.id=metal ignition.config.url=http:\/\/192.168.111.1:8080\/ignition_url coreos.live.rootfs_url=http:\/\/192.168.111.1:8080\/rootfs\.img/" /tmp/modified_iso/syslinux/isolinux.cfg
+sed -i "\|^APPEND|s|$| ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} $KERNEL_ARGUMENTS|" /tmp/modified_iso/syslinux/isolinux.cfg
 
 # rebuild ISO
 pushd /tmp/modified_iso
