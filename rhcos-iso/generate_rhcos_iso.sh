@@ -1,6 +1,18 @@
 # Generates a minimal RHCOS ISO, that will pull rootfs from external source
+FINAL_ISO_PATH=$1
+KERNEL_URL=${2:-https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-kernel-x86_64}
+RAMDISK_URL=${3:-https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-initramfs.x86_64.img}
+
+CONFIG_PATH=$(dirname "$0")
+
+if [ -z "$1" ]
+  then
+    echo "Please provide the initial ISO"
+    exit 1
+fi
+
 rm -rf /tmp/coreos
-rm /tmp/coreos.iso
+rm -f $FINAL_ISO_PATH
 
 pushd /tmp
 mkdir -p coreos/{isolinux,syslinux,coreos}
@@ -8,12 +20,10 @@ mkdir -p coreos/{isolinux,syslinux,coreos}
 pushd /tmp/coreos/coreos
 
 # get kernel
-curl -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-kernel-x86_64
-mv rhcos-live-kernel-x86_64 vmlinuz
+curl $KERNEL_URL -o vmlinuz
 
 # get ramdisk
-curl -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-initramfs.x86_64.img
-mv rhcos-live-initramfs.x86_64.img initramfs.img
+curl $RAMDISK_URL -o initramfs.img
 popd
 
 # get syslinux
@@ -41,4 +51,4 @@ APPEND initrd=/coreos/initramfs.img
 EOF
 
 # generate the ISO
-mkisofs -v -l -r -J -o /tmp/coreos.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
+mkisofs -v -l -r -J -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
