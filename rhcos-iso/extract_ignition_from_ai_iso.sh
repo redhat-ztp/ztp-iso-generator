@@ -10,8 +10,8 @@ if [ -z "$1" ]
 fi
 
 # create initial directories
-umount /mnt/discovery_iso
-rm -rf /mnt/discovery_iso
+umount /mnt/discovery_iso || true
+rm -rf /mnt/discovery_iso || true
 mkdir /mnt/discovery_iso
 
 # mount the discovery iso
