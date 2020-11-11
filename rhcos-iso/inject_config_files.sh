@@ -3,7 +3,8 @@ FINAL_ISO_PATH=$2
 
 IGNITION_PATH=$3
 ROOTFS_PATH=$4
-KERNEL_ARGUMENTS=$5
+KERNEL_ARGUMENTS=${5:-""}
+EXTRA_PATH=${6:-""}
 
 CONFIG_PATH=$(dirname "$0")
 
@@ -33,8 +34,12 @@ fi
 
 if [ -z "$5" ]
   then
-    echo "Please provide the kernel arguments"
-    exit 1
+    echo "No kernel arguments found, running without them"
+fi
+
+if [ -z "$6" ]
+  then
+    echo "No extra config path found, running without extra config"
 fi
 
 echo "***** WARNING: this script needs to be executed as root *********"
@@ -58,10 +63,15 @@ tar cf - . | (cd /tmp/modified_iso && tar xfp -)
 popd
 
 # generate the extra ramdisk
-#bash $CONFIG_PATH/ramdisk_generator.sh $IGNITION_PATH /tmp/modified_iso/coreos/ignition_ramdisk
+if [[ ! -z "${EXTRA_PATH}" ]]; then
+  bash $CONFIG_PATH/ramdisk_generator.sh $EXTRA_PATH /tmp/modified_iso/coreos/ignition_ramdisk
+  EXTRA_KARG_PATH=",/coreos/ignition_ramdisk"
+else
+  EXTRA_KARG_PATH=""
+fi
 
 # append parameter to isolinux.cfg
-sed -i "\|^APPEND|s|$| ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} $KERNEL_ARGUMENTS|" /tmp/modified_iso/syslinux/isolinux.cfg
+sed -i "\|^APPEND|s|$|${EXTRA_KARG_PATH} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/syslinux/isolinux.cfg
 
 # rebuild ISO
 pushd /tmp/modified_iso

@@ -1,6 +1,7 @@
 INITIAL_ISO_PATH=$1
 IGNITION_PATH=$2
 FINAL_ISO_PATH=$3
+EXTRA_FOLDER=${4:-""}
 
 CONFIG_PATH=$(dirname "$0")
 
@@ -21,6 +22,12 @@ if [ -z "$3" ]
     echo "Please provide the path for final ISO"
     exit 1
 fi
+
+if [ -z "$4" ]
+  then
+    echo "No extra folder found, will be running without extra config"
+fi
+exit 1
 
 echo "***** WARNING: this script needs to be executed as root *********"
 

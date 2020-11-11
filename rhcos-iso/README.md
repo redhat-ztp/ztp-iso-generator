@@ -18,13 +18,40 @@ parameters:
 - ignition_path
 - rootfs path
 - kernel arguments
+- extra config folder
+
+Kernel arguments and config folder are optional, you can skip just by passing a blank value ""
+into the position of these parameters.
 
 This script will take the original ISO and will inject the needed parameters in the kernel arguments,
 in order to configure the network with the given settings, and then downloading rootfs and ignition
 from remote urls.
+It will also take the extra config folder that you specify, and inject it into the ramdisk, allowing
+to configure network, run additional services, etc...
+
 After rootfs has been mounted, the specified ignition will run, allowing to customize the image in
 the usual way.
 
 Sample:
 
+For kernel arguments:
+
 ./rhcos-iso/inject_config_files.sh /tmp/coreos.iso /tmp/final_coreos.iso http://192.168.111.1:8080/ignition_url http://192.168.111.1:8080/rootfs.img "ip=192.168.111.20::192.168.111.200:255.255.255.0:cluster.local:eno2:on:8.8.8.8"
+
+For extra ramdisk:
+
+
+./rhcos-iso/inject_config_files.sh /tmp/coreos.iso /tmp/final_coreos.iso http://192.168.111.1:8080/ignition_url http://192.168.111.1:8080/rootfs.img "" /path/to/config_folder
+
+In the config folder, you need to create a filesystem that will replicate the folder structure that you want to see on the ramdisk. For example:
+
+/tmp/network_config/
+└── etc
+    └── NetworkManager
+        └── system-connections
+            └── eno1.nmconnection
+
+Will copy the file to /etc/NetworkManager/system-connections/eno1.nmconnection, if you specify /tmp/network_config as the config folder
+
+The files placed on this config folder will change their ownership to root. But it's still important that you give the right permissions to all the
+folders and files inside this structure.

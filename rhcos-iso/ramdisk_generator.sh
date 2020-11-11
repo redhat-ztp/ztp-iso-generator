@@ -15,5 +15,5 @@ fi
 
 echo "Building ramdisk $RAMDISK_PATH ..."
 pushd $IGNITION_FOLDER
-find . | sed 's/^[.]\///' | cpio -o -H newc --no-absolute-filenames > $RAMDISK_PATH
+find . | sed 's/^[.]\///' | cpio -o -H newc -R root --no-absolute-filenames > $RAMDISK_PATH
 popd
