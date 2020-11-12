@@ -1,0 +1,32 @@
+---
+- name: Create a temporary file
+  tempfile:
+    state: file
+  register: tempfile_pullsecret
+
+- name: Create a temporary file for the ISO download
+  tempfile:
+    state: directory
+  register: tempfile_iso
+
+- name: Copy pull secret to file
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ tempfile_pullsecret.path }}"
+
+- name: Create cluster and download ISO
+  block:
+    - name: Create new AI cluster
+      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P ingress_vip={{ ingress_vip }} {{ cluster_name }}"
+      
+    - name: Generate the ISO for the cluster
+      shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}"
+
+    - name: And download it
+      shell: "aicli download iso {{ cluster_name }} -p {{ tempfile_iso.path }}"
+  environment:
+    AI_URL: "{{ ai_url }}"
+
+- name: Set facat with the name of the downloaded ISO
+  set_fact:
+      downloaded_iso: "{{ tempfile_iso.path }}/{{ cluster_name }}.iso"
