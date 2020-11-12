@@ -4,7 +4,7 @@ FINAL_ISO_PATH=$2
 IGNITION_PATH=$3
 ROOTFS_PATH=$4
 KERNEL_ARGUMENTS=${5:-""}
-EXTRA_PATH=${6:-""}
+EXTRA_RAMDISK_PATH=${6:-""}
 
 CONFIG_PATH=$(dirname "$0")
 
@@ -39,7 +39,7 @@ fi
 
 if [ -z "$6" ]
   then
-    echo "No extra config path found, running without extra config"
+    echo "No extra ramdisk path found, running without extra ramdisk"
 fi
 
 echo "***** WARNING: this script needs to be executed as root *********"
@@ -63,8 +63,8 @@ tar cf - . | (cd /tmp/modified_iso && tar xfp -)
 popd
 
 # generate the extra ramdisk
-if [[ ! -z "${EXTRA_PATH}" ]]; then
-  bash $CONFIG_PATH/ramdisk_generator.sh $EXTRA_PATH /tmp/modified_iso/coreos/ignition_ramdisk
+if [[ ! -z "${EXTRA_RAMDISK_PATH}" ]]; then
+  cp ${EXTRA_RAMDISK_PATH} /tmp/modified_iso/coreos/ignition_ramdisk
   EXTRA_KARG_PATH=",/coreos/ignition_ramdisk"
 else
   EXTRA_KARG_PATH=""
