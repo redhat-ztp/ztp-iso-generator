@@ -6,6 +6,8 @@
       tags: create-cluster
     - role: modify-iso
       tags: modify-iso
-    - role: deploy-cluster 
+    - role: enroll-hosts
+      tags: enroll-hosts
+    - role: deploy-cluster
       tags: deploy-cluster
 

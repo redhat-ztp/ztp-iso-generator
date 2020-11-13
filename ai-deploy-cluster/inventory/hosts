@@ -4,13 +4,14 @@ pull_secret='{"auths": {"cloud.openshift.com": {"auth": "b3BlbnNoaWZ0LXJlbGVhc2U
 
 ai_url="http://192.168.112.199:8080"
 cluster_name="test-aut"
-cluster_domain="test.local"
+cluster_domain="cluster.testing"
 ingress_vip=192.168.112.190
+api_vip=192.168.112.191
 ssh_public_key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDjsI78RL3dd+VCzywsoZDlEMfHLgDVGZMSP3J1zPL5xoM/cT4ZdoKLx5UnogDJGruLNKr5GJn6UfXPIt2usGn2BXZQ4I/ivLJXi9M+7ugowGCcfLdEwjDoW4pvDFccgY6FxQjhV+ceSdFl9RQKgRkbRvnK48W6bgf92bWSbil/Wzf4Oo7ut3SRmVF9f6DKSkizHbMJUhnObfdlRQCMlr3FP8rNqtWoobnw8STB1gDVYBH4E3MYB4gqbKEA5hmtfQ1HwPdwOjHSzXwPG/5y8du8iqFrS4LGVK4uVm3mwF7uPL+8tD7Z6JU+kH4em88GZL0qABXVvplRxaY3gyIzupX7 yolanda@A900"
 ignition_url=http://192.168.112.199/ignition_config
 rootfs_url=http://192.168.112.199/rootfs.img
 kernel_arguments=""
-ramdisk_path=/tmp/network-config
+ramdisk_path=/opt/network-config
 http_server_path=/opt/cached_disconnected_images
 ignition_config_name=ignition_config
 ramdisk_config_name=extra_ramdisk
