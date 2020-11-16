@@ -22,7 +22,7 @@
 - name: Extract the ignition file from the downloaded ISO
   script:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ downloaded_iso }} {{ http_server_path }}/{{ ignition_config_name }}"
+    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}.iso {{ http_server_path }}/{{ ignition_config_name }}"
 
 - name: Generate extra ramdisk
   script:
@@ -34,8 +34,4 @@
   script:
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/inject_config_files.sh {{ small_iso_path }} {{ final_iso_path }} {{ ignition_url }} {{ rootfs_url }} {% if kernel_arguments is defined %}'{{ kernel_arguments }}'{% else %}''{% endif %} {% if ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
-     #- name: Run the ISO modification script
-      #  script:
-      #      chdir: "{{ script_directory.path }}"
-      #      cmd: "{{ script_directory.path }}/inject_config_files.sh {{ downloaded_iso }} {{ script_directory.path }}/{{ cluster_name }}_final.iso }} {{ ignition_url }} {{ rootfs_url }} {{ kernel_arguments }} {{ ramdisk_path }}" 
 
