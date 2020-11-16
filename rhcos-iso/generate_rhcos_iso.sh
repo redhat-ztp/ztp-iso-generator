@@ -29,7 +29,7 @@ popd
 # get syslinux
 if [[ ! -f /tftpboot/chain.c32 ]]; then
   echo "Missing syslinux package. Attempting installation."
-  dnf -y install syslinux-tftpboot || true
+  dnf -y install syslinux syslinux-tftpboot || true
 fi
 
 if [[ ! -f /tftpboot/chain.c32 ]]; then
