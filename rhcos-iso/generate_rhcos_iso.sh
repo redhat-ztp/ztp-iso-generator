@@ -27,14 +27,29 @@ curl $RAMDISK_URL -o initramfs.img
 popd
 
 # get syslinux
-curl -O https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/syslinux-6.03.tar.gz
-tar -xzvf syslinux-6.03.tar.gz
-cp syslinux-6.03/bios/com32/chain/chain.c32 coreos/syslinux/
-cp syslinux-6.03/bios/com32/lib/libcom32.c32 coreos/syslinux/
-cp syslinux-6.03/bios/com32/libutil/libutil.c32 coreos/syslinux/
-cp syslinux-6.03/bios/memdisk/memdisk coreos/syslinux/
-cp syslinux-6.03/bios/com32/elflink/ldlinux/ldlinux.c32 coreos/isolinux/
-cp syslinux-6.03/bios/core/isolinux.bin coreos/isolinux/
+if [[ ! -f /tftpboot/chain.c32 ]]; then
+  echo "Missing syslinux package. Attempting installation."
+  dnf -y install syslinux-tftpboot || true
+fi
+
+if [[ ! -f /tftpboot/chain.c32 ]]; then
+    # package may have failed, use curl
+    curl -O https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/syslinux-6.03.tar.gz
+    tar -xzvf syslinux-6.03.tar.gz
+    cp syslinux-6.03/bios/com32/chain/chain.c32 coreos/syslinux/
+    cp syslinux-6.03/bios/com32/lib/libcom32.c32 coreos/syslinux/
+    cp syslinux-6.03/bios/com32/libutil/libutil.c32 coreos/syslinux/
+    cp syslinux-6.03/bios/memdisk/memdisk coreos/syslinux/
+    cp syslinux-6.03/bios/com32/elflink/ldlinux/ldlinux.c32 coreos/isolinux/
+    cp syslinux-6.03/bios/core/isolinux.bin coreos/isolinux/
+else
+    cp /tftpboot/chain.c32 coreos/syslinux/
+    cp /tftpboot/libcom32.c32 coreos/syslinux/
+    cp /tftpboot/libutil.c32 coreos/syslinux/
+    cp /tftpboot/memdisk coreos/syslinux/
+    cp /tftpboot/ldlinux.c32 coreos/isolinux/
+    cp /usr/share/syslinux/isolinux.bin coreos/isolinux/
+fi
 
 pushd coreos
 
@@ -52,3 +67,6 @@ EOF
 
 # generate the ISO
 mkisofs -v -l -r -J -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
+echo "Image generated at $FINAL_ISO_PATH"
+
+popd
