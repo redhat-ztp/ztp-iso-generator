@@ -18,7 +18,7 @@ mkdir -p coreos
 mkdir -p custom_coreos
 
 # download the LIVE iso and mount it, to remove the rootfs image
-curl $RHCOS_LIVE_ISO -o /tmp/rhcos-live.iso
+[ -f /tmp/rhcos-live.iso ] || curl $RHCOS_LIVE_ISO -o /tmp/rhcos-live.iso
 
 mount -o loop /tmp/rhcos-live.iso /tmp/coreos/
 
