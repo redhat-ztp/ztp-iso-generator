@@ -64,8 +64,8 @@ popd
 
 # generate the extra ramdisk
 if [[ ! -z "${EXTRA_RAMDISK_PATH}" ]]; then
-  cp ${EXTRA_RAMDISK_PATH} /tmp/modified_iso/coreos/ignition_ramdisk
-  EXTRA_KARG_PATH=",/coreos/ignition_ramdisk"
+  cp ${EXTRA_RAMDISK_PATH} /tmp/modified_iso/images/ignition_ramdisk
+  EXTRA_KARG_PATH=",/images/ignition_ramdisk"
 else
   EXTRA_KARG_PATH=""
 fi
