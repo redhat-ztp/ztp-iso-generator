@@ -57,8 +57,9 @@ set timeout=5
 
 ### BEGIN /etc/grub.d/10_linux ###
 menuentry 'RHEL CoreOS (Live)' --class fedora --class gnu-linux --class gnu --class os {
-	linux /images/pxeboot/vmlinuz random.trust_cpu=on rd.luks.options=discard
-	initrd /images/pxeboot/initrd.img
+linux /images/pxeboot/vmlinuz
+initrd /images/pxeboot/initrd.img
+}
 EOF
 
 
@@ -129,7 +130,7 @@ label linux
   menu label ^RHEL CoreOS (Live)
   menu default
   kernel /images/pxeboot/vmlinuz
-  append initrd=/images/pxeboot/initrd.img random.trust_cpu=on rd.luks.options=discard
+  append initrd=/images/pxeboot/initrd.img
 
 menu separator # insert an empty line
 
