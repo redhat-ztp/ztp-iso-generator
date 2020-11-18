@@ -72,7 +72,7 @@ fi
 
 # append parameter to isolinux.cfg
 sed -i "\|^initrd|s|$|${EXTRA_KARG_PATH} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/EFI/redhat/grub.cfg
-sed -i "\|^  append|s|$|${EXTRA_KARG_PATH} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/syslinux/isolinux.cfg
+sed -i "\|^  append|s|$|${EXTRA_KARG_PATH} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/isolinux/isolinux.cfg
 # rebuild ISO
 pushd /tmp/modified_iso
 mkisofs -v -l -r -J -o $FINAL_ISO_PATH -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
