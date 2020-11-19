@@ -65,14 +65,17 @@ popd
 # generate the extra ramdisk
 if [[ ! -z "${EXTRA_RAMDISK_PATH}" ]]; then
   cp ${EXTRA_RAMDISK_PATH} /tmp/modified_iso/images/ignition_ramdisk
-  EXTRA_KARG_PATH=",/images/ignition_ramdisk"
+  EXTRA_KARG_PATH_BIOS=",/images/ignition_ramdisk"
+  EXTRA_KARG_PATH_UEFI=" /images/ignition_ramdisk"
 else
-  EXTRA_KARG_PATH=""
+  EXTRA_KARG_PATH_BIOS=""
+  EXTRA_KARG_PATH_UEFI=""
 fi
 
 # append parameter to isolinux.cfg
-sed -i "\|^linux|s|$|${EXTRA_KARG_PATH} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/EFI/redhat/grub.cfg
-sed -i "\|^  append|s|$|${EXTRA_KARG_PATH} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/isolinux/isolinux.cfg
+sed -i "\|^linux|s|$| ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/EFI/redhat/grub.cfg
+sed -i "\|^initrd|s|$|${EXTRA_KARG_PATH_UEFI}|" /tmp/modified_iso/EFI/redhat/grub.cfg
+sed -i "\|^  append|s|$|${EXTRA_KARG_PATH_BIOS} ignition.firstboot ignition.platform.id=metal ignition.config.url=${IGNITION_PATH} coreos.live.rootfs_url=${ROOTFS_PATH} ${KERNEL_ARGUMENTS}|" /tmp/modified_iso/isolinux/isolinux.cfg
 # rebuild ISO
 pushd /tmp/modified_iso
 
