@@ -13,3 +13,26 @@
   script:
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
+
+- name: Clone the assisted installer project
+  git:
+    repo: 'https://github.com/openshift/assisted-service'
+    dest: /opt/assisted-service-ztp
+    update: no
+
+- name: Add env var to file if does not exist
+  lineinfile:
+    path: /opt/assisted-service-ztp/onprem-environment
+    line: "{{ item }}"
+  with_items:
+    - "SUPPORT_L2=false"
+    - "SERVICE_BASE_URL=http://192.168.112.199:8090"
+    - "HW_VALIDATOR_MIN_DISK_SIZE_GIB=50"
+
+- name: Clean the pod
+  shell: "podman pod rm -f assisted-installer"
+
+- name: Start the assisted installer service
+  shell: "make deploy-onprem"
+  args:
+    chdir: "/opt/assisted-service-ztp"
