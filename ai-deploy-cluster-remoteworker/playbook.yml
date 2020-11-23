@@ -6,10 +6,12 @@
       tags: prepare-environment
     - role: create-cluster
       tags: create-cluster
-    - role: modify-iso
-      tags: modify-iso
     - role: enroll-hosts
       tags: enroll-hosts
     - role: deploy-cluster
       tags: deploy-cluster
+    - role: create-cluster-day2
+      tags: create-cluster-day2
+    - role: modify-iso-day2
+      tags: modify-iso-day2
 
