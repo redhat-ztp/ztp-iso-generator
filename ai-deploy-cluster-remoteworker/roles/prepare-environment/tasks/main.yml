@@ -1,4 +1,15 @@
 ---
+- name: Install dependencies for haproxy
+  yum:
+    name: podman
+    state: present
+
+- name: Create haproxy directory
+  file:
+    path: /opt/haproxy
+    state: directory
+    mode: '0755'
+
 - name: Create temporary directory for script
   tempfile:
     state: directory

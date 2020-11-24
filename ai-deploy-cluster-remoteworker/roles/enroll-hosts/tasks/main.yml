@@ -20,7 +20,7 @@
     - master_2
       
 - name: Create the qcow2 file
-  command: "qemu-img create -f qcow2 /var/lib/libvirt/images/{{ item }}_{{ cluster_name }}.qcow2 120G"
+  command: "qemu-img create -f qcow2 /var/lib/libvirt/images/{{ item }}_{{ cluster_name }}.qcow2 50G"
   with_items:
     - master_0
     - master_1
