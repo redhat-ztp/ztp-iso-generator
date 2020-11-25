@@ -8,8 +8,6 @@
       tags: create-cluster
     - role: enroll-hosts
       tags: enroll-hosts
-    - role: create-haproxy
-      tags: create-haproxy
     - role: deploy-cluster
       tags: deploy-cluster
     - role: create-cluster-day2
