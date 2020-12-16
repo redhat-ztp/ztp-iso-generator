@@ -1,6 +1,6 @@
 # Generates a minimal RHCOS ISO, that will pull rootfs from external source
 FINAL_ISO_PATH=$1
-RHCOS_LIVE_ISO=${2:-https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-4.6.1-x86_64-live.x86_64.iso}
+RHCOS_LIVE_ISO=${2:-https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live.x86_64.iso}
 
 CONFIG_PATH=$(dirname "$0")
 
