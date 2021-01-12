@@ -13,6 +13,9 @@ fi
 rm -rf /tmp/coreos
 rm -f $FINAL_ISO_PATH
 
+# create output folder if it does not exist
+mkdir -p $(dirname $FINAL_ISO_PATH)
+
 pushd /tmp
 mkdir -p coreos
 mkdir -p custom_coreos
