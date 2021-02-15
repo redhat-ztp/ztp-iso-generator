@@ -1,0 +1,97 @@
+- name: Create temporary directory for modifying the ignition and ramdisk
+  tempfile:
+    state: directory
+  register: ignition_directory
+
+- name: Create temporary directory for storing scripts
+  tempfile:
+    state: directory
+  register: script_directory
+
+- name: Get the script to modify ISOs
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/inject_config_files.sh
+      dest: "{{ script_directory.path }}/inject_config_files.sh"
+      mode: 0755
+
+- name: Get the script to generate ramdisk
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/ramdisk_generator.sh
+      dest: "{{ script_directory.path }}/ramdisk_generator.sh"
+      mode: 0755
+
+- name: Delete previous ignition file
+  file:
+    path: "{{ ignition_http_server_path }}/{{ final_ignition_name }}"
+    state: absent
+
+- name: Inject network files if needed
+  block:
+  - name: Create fake-root directory
+    file:
+      path: "{{ ignition_directory.path }}/fake_root"
+      state: directory
+      mode: '0755'
+
+  - name: Copy network directory to the ignition temporary path, if we need to inject it
+    copy:
+      src: "{{ ramdisk_path }}/"
+      dest: "{{ ignition_directory.path }}/fake_root"
+      mode: preserve
+
+  - name: Generate extra ramdisk
+    shell:
+      chdir: "{{ script_directory.path }}"
+      cmd: "{{ script_directory.path }}/ramdisk_generator.sh {{ ramdisk_path }} {{ script_directory.path }}/extra_config.img"
+
+  - name: Add network configuration in ignition if that's defined
+    block:
+      - name: If we do not have an ignition file, generate it from the template
+        template:
+          src: "./templates/coreos_install.service.j2"
+          dest: "{{ ignition_directory.path }}/final_ignition"
+        when: ignition_file is not defined or ignition_file | length == 0
+
+      - name: Copy ignition file into temporary directory
+        copy:
+          src: "{{ ignition_file }}"
+          dest: "{{ ignition_directory.path }}/final_ignition"
+        when: ignition_file is defined and ignition_file | length > 0
+
+      - name: Transpile ignition to include ramdisk
+        shell: "podman run --rm -ti --volume {{ ignition_directory.path }}:/srv:z localhost/filetranspiler:latest -i final_ignition  -f fake_root -o /srv/modified_ignition"
+
+      - name: Copy final ignition to final path
+        copy:
+          src: "{{ ignition_directory.path }}/modified_ignition"
+          dest: "{{ ignition_http_server_path }}/{{ final_ignition_name }}"
+          remote_src: yes
+          force: yes
+  when: ramdisk_path is defined and ramdisk_path | length > 0
+
+- name: Just copy ignition without modification if no network ramdisk is used
+  block:
+    - name: If we do not have an ignition file, generate it from the template
+      template:
+        src: "./templates/coreos_install.service.j2"
+        dest: "{{ ignition_http_server_path }}/final_ignition"
+        force: yes
+      when: ignition_file is not defined and ignition_file | length == 0
+
+    - name: Copy ignition file into temporary directory
+      copy:
+        src: "{{ ignition_file }}"
+        dest: "{{ ignition_http_server_path }}/{{ final_ignition_name }}"
+        force: yes
+      when: ignition_file is defined and ignition_file | length > 0
+  when: ramdisk_path is not defined or ramdisk_path | length == 0
+
+- name: Produce the final iso
+  shell:
+    chdir: "{{ script_directory.path }}"
+    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ temporary_path }}/small_image.iso {{ temporary_path }}/final_small_image.iso {{ ignition_url }}/{{ final_ignition_name }} {{ rootfs_url }} {% if kernel_arguments is defined %}'{{ kernel_arguments }}'{% else %}''{% endif %} {% if ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
+
+- name: Output the path for the final image
+  debug:
+    msg: "The final small ISO has been produced under {{ temporary_path }}/final_small_image.iso"
+

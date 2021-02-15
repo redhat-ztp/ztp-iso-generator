@@ -1,0 +1,20 @@
+{
+  "ignition": { "version": "3.1.0" },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "passwordHash": "!",
+        "sshAuthorizedKeys": [ "{{ssh_public_key }}" ],
+        "groups": [ "sudo" ]
+      }
+    ]
+  },
+  "systemd": {
+    "units": [{
+      "name": "coreos_installer.service",
+      "enabled": true,
+      "contents": "[Unit]\nAfter=network.target\nAfter=network-online.target\n[Service]\nType=oneshot\nEnvironment=HTTP_PROXY={{ http_proxy | default('')}}\nEnvironment=http_proxy={{ http_proxy | default('')}}\nEnvironment=HTTPS_PROXY={{ https_proxy | default('') }}\nEnvironment=https_proxy={{ https_proxy | default('') }}\nEnvironment=NO_PROXY={{ no_proxy_list | default('') }}\nEnvironment=no_proxy={{ no_proxy_list | default('') }}\nExecStart=/bin/sh -c 'while ! /usr/bin/coreos-installer install --copy-network --insecure --insecure-ignition --ignition-url {{ final_ignition_url }} {{ install_device }}; do sleep 5; done'\nExecStartPost=reboot\n\n[Install]\nWantedBy=multi-user.target"
+}]
+}
+}
