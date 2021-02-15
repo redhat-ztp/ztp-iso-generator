@@ -1,0 +1,17 @@
+[all:vars]
+temporary_path=/tmp
+iso_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-4.6.8-x86_64-live.x86_64.iso
+ignition_http_server_path=/opt/cached_disconnected_images
+final_ignition_name=final_ignition
+final_ignition_url=http:/path/to/url/bootstrap#master#worker.ign
+ramdisk_path=/opt/network-config
+ignition_url=http://192.168.112.199:80
+ignition_file=/tmp/ignition.ign
+rootfs_url=https://192.168.112.199/rhcos-4.6.8-x86_64-live-rootfs.x86_64.img
+install_device=/dev/sda
+ssh_public_key="<pubkey_contents>"
+
+[provisioner]
+# host from where the installation is performed
+192.168.112.199 ansible_connection=ssh
+
